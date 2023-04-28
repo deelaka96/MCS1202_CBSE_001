@@ -12,7 +12,7 @@ export default function LoginForm() {
   });
 
   const handleSubmit = async (values: any) => {
-    console.log(values);
+    
   };
 
   const initialValues = {
@@ -32,6 +32,7 @@ export default function LoginForm() {
           errors,
           touched,
           isSubmitting,
+          isValid,
           values,
           handleChange,
           handleSubmit,
