@@ -1,11 +1,14 @@
 var express = require("express")
 var app = express()
 var db = require("./database.js")
+const cors = require('cors');
 var md5 = require("md5")
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors())
+
 
 var HTTP_PORT = 8000
 
@@ -45,6 +48,21 @@ app.get("/api/user/:id", (req, res, next) => {
       });
 });
 
+app.post("/api/login", (req, res, next) => {
+    var sql = "select * from user where email = ? AND password = ?"
+    var params = [req.body.email, md5(req.body.password)]
+    db.all(sql, params, (err, row) => {
+        if (err) {
+          res.status(400).json({"error":err.message});
+          return;
+        }
+        delete row[0]?.password
+        res.json({
+            "message":"success",
+            "data":row
+        })
+      });
+});
 
 app.post("/api/user/", (req, res, next) => {
     var errors=[]
@@ -118,7 +136,6 @@ app.delete("/api/user/:id", (req, res, next) => {
             res.json({"message":"deleted", rows: this.changes})
     });
 })
-
 
 // Root path
 app.get("/", (req, res, next) => {

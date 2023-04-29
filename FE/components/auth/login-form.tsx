@@ -1,9 +1,16 @@
 import { Formik } from "formik";
 import styles from "./login-form.module.css";
-import { Button, Spinner, Form } from "react-bootstrap";
+import { Button, Spinner, Form, Alert } from "react-bootstrap";
 import * as Yup from "yup";
+import { get, post } from "../utils/axios";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const [error, setError] = useState("");
+
   const userValidationSchema = Yup.object({
     username: Yup.string()
       .required("Please provide an email")
@@ -12,7 +19,17 @@ export default function LoginForm() {
   });
 
   const handleSubmit = async (values: any) => {
-    
+    var data = {
+      email: values.username,
+      password: values.password,
+    };
+    let response = await post("/login", data, false);
+    if (response.data.data[0]) {
+      localStorage.setItem("user", JSON.stringify(response.data.data[0]));
+      router.push("/dashboard");
+    } else {
+      setError("Invalid Credentials! :(");
+    }
   };
 
   const initialValues = {
@@ -20,9 +37,19 @@ export default function LoginForm() {
     password: "",
   };
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/");
+    }
+  }, []);
+
   return (
     <div className={styles.login_box + " p-3"}>
       <h1 className="display-6 mb-3">Login</h1>
+      {error ? <Alert variant={"danger"}>{error}</Alert> : ""}
       <Formik
         validationSchema={userValidationSchema}
         initialValues={initialValues}
@@ -32,7 +59,6 @@ export default function LoginForm() {
           errors,
           touched,
           isSubmitting,
-          isValid,
           values,
           handleChange,
           handleSubmit,

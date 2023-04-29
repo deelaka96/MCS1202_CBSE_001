@@ -1,8 +1,6 @@
 import axios from 'axios';
-// config
-import { API } from '../config';
 
-const axiosInstance = axios.create({ baseURL: API });
+const axiosInstance = axios.create({ baseURL: "http://localhost:8000/api" });
 
 
 const unhandledError = {
@@ -17,7 +15,6 @@ export const post = async (url: string, data: any, auth = false) => {
     method: 'post',
     responseType: 'json'
   };
-
   return axiosInstance(options);
 };
 
